@@ -172,6 +172,7 @@ void R_Init (void)
 	Cvar_RegisterVariable (&r_waterwarp);
 	Cvar_RegisterVariable (&r_fullbright);
 	Cvar_RegisterVariable (&r_drawentities);
+	Cvar_RegisterVariable (&r_drawviewmodel);
 	Cvar_RegisterVariable (&r_aliasstats);
 	Cvar_RegisterVariable (&r_dspeeds);
 	Cvar_RegisterVariable (&r_reportsurfout);
@@ -180,6 +181,8 @@ void R_Init (void)
 	Cvar_RegisterVariable (&r_reportedgeout);
 	Cvar_RegisterVariable (&r_maxedges);
 	Cvar_RegisterVariable (&r_numedges);
+	Cvar_RegisterVariable (&r_aliastransbase);
+	Cvar_RegisterVariable (&r_aliastransadj);
 
 	Cvar_SetValue ("r_maxedges", (float)NUMSTACKEDGES);
 	Cvar_SetValue ("r_maxsurfs", (float)NUMSTACKSURFACES);
@@ -420,8 +423,8 @@ void R_ViewChanged (vrect_t *pvrect, int lineadj, float aspect)
 	res_scale = sqrt ((double)(r_refdef.vrect.width * r_refdef.vrect.height) /
 			          (320.0 * 152.0)) *
 			(2.0 / r_refdef.horizontalFieldOfView);
-	r_aliastransition = 200.0 * res_scale;  // default value (was r_aliastransbase)
-	r_resfudge = 100.0 * res_scale;         // default value (was r_aliastransadj)
+	r_aliastransition = r_aliastransbase.value * res_scale;
+	r_resfudge = r_aliastransadj.value * res_scale;
 
 	if (scr_fov.value <= 90.0)
 		r_fov_greater_than_90 = false;
@@ -580,7 +583,7 @@ void R_DrawViewModel (void)
 	float		add;
 	dlight_t	*dl;
 	
-	if (r_fov_greater_than_90)
+	if (!r_drawviewmodel.value || r_fov_greater_than_90)
 		return;
 
 	if (cl.items & IT_INVISIBILITY)

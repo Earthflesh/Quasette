@@ -15,7 +15,6 @@ See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
 */
 // host.c -- coordinates spawning and killing of local servers
 
@@ -249,7 +248,7 @@ void Host_WriteConfiguration (void)
 
 // dedicated servers initialize the host but don't parse and set the
 // config.cfg cvars
-	if (host_initialized & !isDedicated)
+	if (host_initialized && !isDedicated)
 	{
 		f = fopen (va("%s/config.cfg",com_gamedir), "w");
 		if (!f)
@@ -711,8 +710,6 @@ void _Host_Frame (float time)
 	else
 		S_Update (vec3_origin, vec3_origin, vec3_origin, vec3_origin);
 	
-	CDAudio_Update();
-
 	if (host_speeds.value)
 	{
 		pass1 = (time1 - time3)*1000;
@@ -902,7 +899,6 @@ void Host_Init (quakeparms_t *parms)
 #endif
 
 #endif	// _WIN32
-		CDAudio_Init ();
 		Sbar_Init ();
 		CL_Init ();
 #ifdef _WIN32 // on non win32, mouse comes before video for security reasons
@@ -945,7 +941,6 @@ void Host_Shutdown(void)
 
 	Host_WriteConfiguration (); 
 
-	CDAudio_Shutdown ();
 	NET_Shutdown ();
 	S_Shutdown();
 	IN_Shutdown ();
@@ -955,4 +950,3 @@ void Host_Shutdown(void)
 		VID_Shutdown();
 	}
 }
-

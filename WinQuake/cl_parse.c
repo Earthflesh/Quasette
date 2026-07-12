@@ -15,7 +15,6 @@ See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
 */
 // cl_parse.c  -- parse a message received from the server
 
@@ -62,7 +61,7 @@ char *svc_strings[] =
 	"svc_spawnstaticsound",
 	"svc_intermission",
 	"svc_finale",			// [string] music [string] text
-	"svc_cdtrack",			// [byte] track [byte] looptrack
+	"svc_cdtrack",			// [byte] track [byte] looptrack  (kept for protocol compatibility)
 	"svc_sellscreen",
 	"svc_cutscene"
 };
@@ -880,21 +879,6 @@ void CL_ParseServerMessage (void)
 		case svc_setpause:
 			{
 				cl.paused = MSG_ReadByte ();
-
-				if (cl.paused)
-				{
-					CDAudio_Pause ();
-#ifdef _WIN32
-					VID_HandlePause (true);
-#endif
-				}
-				else
-				{
-					CDAudio_Resume ();
-#ifdef _WIN32
-					VID_HandlePause (false);
-#endif
-				}
 			}
 			break;
 			
@@ -926,12 +910,9 @@ void CL_ParseServerMessage (void)
 			break;
 
 		case svc_cdtrack:
+			// CD support fully removed — just consume the bytes for protocol compatibility
 			cl.cdtrack = MSG_ReadByte ();
 			cl.looptrack = MSG_ReadByte ();
-			if ( (cls.demoplayback || cls.demorecording) && (cls.forcetrack != -1) )
-				CDAudio_Play ((byte)cls.forcetrack, true);
-			else
-				CDAudio_Play ((byte)cl.cdtrack, true);
 			break;
 
 		case svc_intermission:
@@ -960,4 +941,3 @@ void CL_ParseServerMessage (void)
 		}
 	}
 }
-

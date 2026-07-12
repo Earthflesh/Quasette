@@ -21,6 +21,29 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "quakedef.h"
 #include "r_local.h"
 
+cvar_t	r_draworder = {"r_draworder","0"};
+cvar_t	r_speeds = {"r_speeds","0"};
+cvar_t	r_timegraph = {"r_timegraph","0"};
+cvar_t	r_graphheight = {"r_graphheight","10"};
+cvar_t	r_clearcolor = {"r_clearcolor","2"};
+cvar_t	r_waterwarp = {"r_waterwarp","1"};
+cvar_t	r_fullbright = {"r_fullbright","0"};
+cvar_t	r_drawentities = {"r_drawentities","1"};
+cvar_t	r_drawviewmodel = {"r_drawviewmodel","1"};
+cvar_t	r_aliasstats = {"r_polymodelstats","0"};
+cvar_t	r_dspeeds = {"r_dspeeds","0"};
+cvar_t	r_drawflat = {"r_drawflat", "0"};
+cvar_t	r_ambient = {"r_ambient", "0"};
+cvar_t	r_reportsurfout = {"r_reportsurfout", "0"};
+cvar_t	r_maxsurfs = {"r_maxsurfs", "0"};
+cvar_t	r_numsurfs = {"r_numsurfs", "0"};
+cvar_t	r_reportedgeout = {"r_reportedgeout", "0"};
+cvar_t	r_maxedges = {"r_maxedges", "0"};
+cvar_t	r_numedges = {"r_numedges", "0"};
+cvar_t	r_aliastransbase = {"r_aliastransbase", "200"};
+cvar_t	r_aliastransadj = {"r_aliastransadj", "100"};
+cvar_t	scr_fov = {"fov", "90"};
+
 void		*colormap;
 vec3_t		viewlightvec;
 alight_t	r_viewlighting = {128, 192, viewlightvec};

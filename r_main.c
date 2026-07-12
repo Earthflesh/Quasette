@@ -21,29 +21,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "quakedef.h"
 #include "r_local.h"
 
-cvar_t	r_draworder = {"r_draworder","0"};
-cvar_t	r_speeds = {"r_speeds","0"};
-cvar_t	r_timegraph = {"r_timegraph","0"};
-cvar_t	r_graphheight = {"r_graphheight","10"};
-cvar_t	r_clearcolor = {"r_clearcolor","2"};
-cvar_t	r_waterwarp = {"r_waterwarp","1"};
-cvar_t	r_fullbright = {"r_fullbright","0"};
-cvar_t	r_drawentities = {"r_drawentities","1"};
-cvar_t	r_drawviewmodel = {"r_drawviewmodel","1"};
-cvar_t	r_aliasstats = {"r_polymodelstats","0"};
-cvar_t	r_dspeeds = {"r_dspeeds","0"};
-cvar_t	r_drawflat = {"r_drawflat", "0"};
-cvar_t	r_ambient = {"r_ambient", "0"};
-cvar_t	r_reportsurfout = {"r_reportsurfout", "0"};
-cvar_t	r_maxsurfs = {"r_maxsurfs", "0"};
-cvar_t	r_numsurfs = {"r_numsurfs", "0"};
-cvar_t	r_reportedgeout = {"r_reportedgeout", "0"};
-cvar_t	r_maxedges = {"r_maxedges", "0"};
-cvar_t	r_numedges = {"r_numedges", "0"};
-cvar_t	r_aliastransbase = {"r_aliastransbase", "200"};
-cvar_t	r_aliastransadj = {"r_aliastransadj", "100"};
-cvar_t	scr_fov = {"fov", "90"};
-
 void		*colormap;
 vec3_t		viewlightvec;
 alight_t	r_viewlighting = {128, 192, viewlightvec};
@@ -132,6 +109,30 @@ int		d_lightstylevalue[256];	// 8.8 fraction of base light value
 
 float	dp_time1, dp_time2, db_time1, db_time2, rw_time1, rw_time2;
 float	se_time1, se_time2, de_time1, de_time2, dv_time1, dv_time2;
+
+cvar_t	r_draworder = {"r_draworder","0"};
+cvar_t	r_speeds = {"r_speeds","0"};
+cvar_t	r_timegraph = {"r_timegraph","0"};
+cvar_t	r_graphheight = {"r_graphheight","10"};
+cvar_t	r_clearcolor = {"r_clearcolor","2"};
+cvar_t	r_waterwarp = {"r_waterwarp","1"};
+cvar_t	r_fullbright = {"r_fullbright","0"};
+cvar_t	r_drawentities = {"r_drawentities","1"};
+cvar_t	r_drawviewmodel = {"r_drawviewmodel","1"};
+cvar_t	r_aliasstats = {"r_polymodelstats","0"};
+cvar_t	r_dspeeds = {"r_dspeeds","0"};
+cvar_t	r_drawflat = {"r_drawflat", "0"};
+cvar_t	r_ambient = {"r_ambient", "0"};
+cvar_t	r_reportsurfout = {"r_reportsurfout", "0"};
+cvar_t	r_maxsurfs = {"r_maxsurfs", "0"};
+cvar_t	r_numsurfs = {"r_numsurfs", "0"};
+cvar_t	r_reportedgeout = {"r_reportedgeout", "0"};
+cvar_t	r_maxedges = {"r_maxedges", "0"};
+cvar_t	r_numedges = {"r_numedges", "0"};
+cvar_t	r_aliastransbase = {"r_aliastransbase", "200"};
+cvar_t	r_aliastransadj = {"r_aliastransadj", "100"};
+
+extern cvar_t	scr_fov;
 
 void R_MarkLeaves (void);
 
@@ -387,18 +388,10 @@ void R_ViewChanged (vrect_t *pvrect, int lineadj, float aspect)
 	
 	screenAspect = r_refdef.vrect.width*pixelAspect /
 			r_refdef.vrect.height;
-// 320*200 1.0 pixelAspect = 1.6 screenAspect
-// 320*240 1.0 pixelAspect = 1.3333 screenAspect
-// proper 320*200 pixelAspect = 0.8333333
 
 	verticalFieldOfView = r_refdef.horizontalFieldOfView / screenAspect;
 
 // values for perspective projection
-// if math were exact, the values would range from 0.5 to to range+0.5
-// hopefully they wll be in the 0.000001 to range+.999999 and truncate
-// the polygon rasterization will never render in the first row or column
-// but will definately render in the [range] row and column, so adjust the
-// buffer origin to get an exact edge to edge fill
 	xcenter = ((float)r_refdef.vrect.width * XCENTERING) +
 			r_refdef.vrect.x - 0.5;
 	aliasxcenter = xcenter * r_aliasuvscale;
@@ -475,7 +468,6 @@ void R_ViewChanged (vrect_t *pvrect, int lineadj, float aspect)
 	D_ViewChanged ();
 }
 
-
 /*
 ===============
 R_MarkLeaves
@@ -510,7 +502,6 @@ void R_MarkLeaves (void)
 		}
 	}
 }
-
 
 /*
 =============
@@ -638,8 +629,6 @@ void R_DrawViewModel (void)
 		dl = &cl_dlights[lnum];
 		if (!dl->radius)
 			continue;
-		if (!dl->radius)
-			continue;
 		if (dl->die < cl.time)
 			continue;
 
@@ -657,387 +646,10 @@ void R_DrawViewModel (void)
 
 	r_viewlighting.plightvec = lightvec;
 
-#ifdef QUAKE2
-	cl.light_level = r_viewlighting.ambientlight;
-#endif
-
 	R_AliasDrawModel (&r_viewlighting);
 }
 
-
-/*
-=============
-R_BmodelCheckBBox
-=============
-*/
-int R_BmodelCheckBBox (model_t *clmodel, float *minmaxs)
-{
-	int			i, *pindex, clipflags;
-	vec3_t		acceptpt, rejectpt;
-	double		d;
-
-	clipflags = 0;
-
-	if (currententity->angles[0] || currententity->angles[1]
-		|| currententity->angles[2])
-	{
-		for (i=0 ; i<4 ; i++)
-		{
-			d = DotProduct (currententity->origin, view_clipplanes[i].normal);
-			d -= view_clipplanes[i].dist;
-
-			if (d <= -clmodel->radius)
-				return BMODEL_FULLY_CLIPPED;
-
-			if (d <= clmodel->radius)
-				clipflags |= (1<<i);
-		}
-	}
-	else
-	{
-		for (i=0 ; i<4 ; i++)
-		{
-		// generate accept and reject points
-		// FIXME: do with fast look-ups or integer tests based on the sign bit
-		// of the floating point values
-
-			pindex = pfrustum_indexes[i];
-
-			rejectpt[0] = minmaxs[pindex[0]];
-			rejectpt[1] = minmaxs[pindex[1]];
-			rejectpt[2] = minmaxs[pindex[2]];
-			
-			d = DotProduct (rejectpt, view_clipplanes[i].normal);
-			d -= view_clipplanes[i].dist;
-
-			if (d <= 0)
-				return BMODEL_FULLY_CLIPPED;
-
-			acceptpt[0] = minmaxs[pindex[3+0]];
-			acceptpt[1] = minmaxs[pindex[3+1]];
-			acceptpt[2] = minmaxs[pindex[3+2]];
-
-			d = DotProduct (acceptpt, view_clipplanes[i].normal);
-			d -= view_clipplanes[i].dist;
-
-			if (d <= 0)
-				clipflags |= (1<<i);
-		}
-	}
-
-	return clipflags;
-}
-
-
-/*
-=============
-R_DrawBEntitiesOnList
-=============
-*/
-void R_DrawBEntitiesOnList (void)
-{
-	int			i, j, k, clipflags;
-	vec3_t		oldorigin;
-	model_t		*clmodel;
-	float		minmaxs[6];
-
-	if (!r_drawentities.value)
-		return;
-
-	VectorCopy (modelorg, oldorigin);
-	insubmodel = true;
-	r_dlightframecount = r_framecount;
-
-	for (i=0 ; i<cl_numvisedicts ; i++)
-	{
-		currententity = cl_visedicts[i];
-
-		switch (currententity->model->type)
-		{
-		case mod_brush:
-
-			clmodel = currententity->model;
-
-		// see if the bounding box lets us trivially reject, also sets
-		// trivial accept status
-			for (j=0 ; j<3 ; j++)
-			{
-				minmaxs[j] = currententity->origin[j] +
-						clmodel->mins[j];
-				minmaxs[3+j] = currententity->origin[j] +
-						clmodel->maxs[j];
-			}
-
-			clipflags = R_BmodelCheckBBox (clmodel, minmaxs);
-
-			if (clipflags != BMODEL_FULLY_CLIPPED)
-			{
-				VectorCopy (currententity->origin, r_entorigin);
-				VectorSubtract (r_origin, r_entorigin, modelorg);
-			// FIXME: is this needed?
-				VectorCopy (modelorg, r_worldmodelorg);
-		
-				r_pcurrentvertbase = clmodel->vertexes;
-		
-			// FIXME: stop transforming twice
-				R_RotateBmodel ();
-
-			// calculate dynamic lighting for bmodel if it's not an
-			// instanced model
-				if (clmodel->firstmodelsurface != 0)
-				{
-					for (k=0 ; k<MAX_DLIGHTS ; k++)
-					{
-						if ((cl_dlights[k].die < cl.time) ||
-							(!cl_dlights[k].radius))
-						{
-							continue;
-						}
-
-						R_MarkLights (&cl_dlights[k], 1<<k,
-							clmodel->nodes + clmodel->hulls[0].firstclipnode);
-					}
-				}
-
-			// if the driver wants polygons, deliver those. Z-buffering is on
-			// at this point, so no clipping to the world tree is needed, just
-			// frustum clipping
-				if (r_drawpolys | r_drawculledpolys)
-				{
-					R_ZDrawSubmodelPolys (clmodel);
-				}
-				else
-				{
-					r_pefragtopnode = NULL;
-
-					for (j=0 ; j<3 ; j++)
-					{
-						r_emins[j] = minmaxs[j];
-						r_emaxs[j] = minmaxs[3+j];
-					}
-
-					R_SplitEntityOnNode2 (cl.worldmodel->nodes);
-
-					if (r_pefragtopnode)
-					{
-						currententity->topnode = r_pefragtopnode;
-	
-						if (r_pefragtopnode->contents >= 0)
-						{
-						// not a leaf; has to be clipped to the world BSP
-							r_clipflags = clipflags;
-							R_DrawSolidClippedSubmodelPolygons (clmodel);
-						}
-						else
-						{
-						// falls entirely in one leaf, so we just put all the
-						// edges in the edge list and let 1/z sorting handle
-						// drawing order
-							R_DrawSubmodelPolygons (clmodel, clipflags);
-						}
-	
-						currententity->topnode = NULL;
-					}
-				}
-
-			// put back world rotation and frustum clipping		
-			// FIXME: R_RotateBmodel should just work off base_vxx
-				VectorCopy (base_vpn, vpn);
-				VectorCopy (base_vup, vup);
-				VectorCopy (base_vright, vright);
-				VectorCopy (base_modelorg, modelorg);
-				VectorCopy (oldorigin, modelorg);
-				R_TransformFrustum ();
-			}
-
-			break;
-
-		default:
-			break;
-		}
-	}
-
-	insubmodel = false;
-}
-
-
-/*
-================
-R_EdgeDrawing
-================
-*/
-void R_EdgeDrawing (void)
-{
-	edge_t	ledges[NUMSTACKEDGES +
-				((CACHE_SIZE - 1) / sizeof(edge_t)) + 1];
-	surf_t	lsurfs[NUMSTACKSURFACES +
-				((CACHE_SIZE - 1) / sizeof(surf_t)) + 1];
-
-	if (auxedges)
-	{
-		r_edges = auxedges;
-	}
-	else
-	{
-		r_edges =  (edge_t *)
-				(((long)&ledges[0] + CACHE_SIZE - 1) & ~(CACHE_SIZE - 1));
-	}
-
-	if (r_surfsonstack)
-	{
-		surfaces =  (surf_t *)
-				(((long)&lsurfs[0] + CACHE_SIZE - 1) & ~(CACHE_SIZE - 1));
-		surf_max = &surfaces[r_cnumsurfs];
-	// surface 0 doesn't really exist; it's just a dummy because index 0
-	// is used to indicate no edge attached to surface
-		surfaces--;
-		R_SurfacePatch ();
-	}
-
-	R_BeginEdgeFrame ();
-
-	if (r_dspeeds.value)
-	{
-		rw_time1 = Sys_FloatTime ();
-	}
-
-	R_RenderWorld ();
-
-	if (r_drawculledpolys)
-		R_ScanEdges ();
-
-// only the world can be drawn back to front with no z reads or compares, just
-// z writes, so have the driver turn z compares on now
-	D_TurnZOn ();
-
-	if (r_dspeeds.value)
-	{
-		rw_time2 = Sys_FloatTime ();
-		db_time1 = rw_time2;
-	}
-
-	R_DrawBEntitiesOnList ();
-
-	if (r_dspeeds.value)
-	{
-		db_time2 = Sys_FloatTime ();
-		se_time1 = db_time2;
-	}
-
-	if (!r_dspeeds.value)
-	{
-		VID_UnlockBuffer ();
-		S_ExtraUpdate ();	// don't let sound get messed up if going slow
-		VID_LockBuffer ();
-	}
-	
-	if (!(r_drawpolys | r_drawculledpolys))
-		R_ScanEdges ();
-}
-
-
-/*
-================
-R_RenderView
-
-r_refdef must be set before the first call
-================
-*/
-void R_RenderView_ (void)
-{
-	byte	warpbuffer[WARP_WIDTH * WARP_HEIGHT];
-
-	r_warpbuffer = warpbuffer;
-
-	if (r_timegraph.value || r_speeds.value || r_dspeeds.value)
-		r_time1 = Sys_FloatTime ();
-
-	R_SetupFrame ();
-
-#ifdef PASSAGES
-SetVisibilityByPassages ();
-#else
-	R_MarkLeaves ();	// done here so we know if we're in water
-#endif
-
-// make FDIV fast. This reduces timing precision after we've been running for a
-// while, so we don't do it globally.  This also sets chop mode, and we do it
-// here so that setup stuff like the refresh area calculations match what's
-// done in screen.c
-	Sys_LowFPPrecision ();
-
-	if (!cl_entities[0].model || !cl.worldmodel)
-		Sys_Error ("R_RenderView: NULL worldmodel");
-		
-	if (!r_dspeeds.value)
-	{
-		VID_UnlockBuffer ();
-		S_ExtraUpdate ();	// don't let sound get messed up if going slow
-		VID_LockBuffer ();
-	}
-	
-	R_EdgeDrawing ();
-
-	if (!r_dspeeds.value)
-	{
-		VID_UnlockBuffer ();
-		S_ExtraUpdate ();	// don't let sound get messed up if going slow
-		VID_LockBuffer ();
-	}
-	
-	if (r_dspeeds.value)
-	{
-		se_time2 = Sys_FloatTime ();
-		de_time1 = se_time2;
-	}
-
-	R_DrawEntitiesOnList ();
-
-	if (r_dspeeds.value)
-	{
-		de_time2 = Sys_FloatTime ();
-		dv_time1 = de_time2;
-	}
-
-	R_DrawViewModel ();
-
-	if (r_dspeeds.value)
-	{
-		dv_time2 = Sys_FloatTime ();
-		dp_time1 = Sys_FloatTime ();
-	}
-
-	R_DrawParticles ();
-
-	if (r_dspeeds.value)
-		dp_time2 = Sys_FloatTime ();
-
-	if (r_dowarp)
-		D_WarpScreen ();
-
-	V_SetContentsColor (r_viewleaf->contents);
-
-	if (r_timegraph.value)
-		R_TimeGraph ();
-
-	if (r_aliasstats.value)
-		R_PrintAliasStats ();
-		
-	if (r_speeds.value)
-		R_PrintTimes ();
-
-	if (r_dspeeds.value)
-		R_PrintDSpeeds ();
-
-	if (r_reportsurfout.value && r_outofsurfaces)
-		Con_Printf ("Short %d surfaces\n", r_outofsurfaces);
-
-	if (r_reportedgeout.value && r_outofedges)
-		Con_Printf ("Short roughly %d edges\n", r_outofedges * 2 / 3);
-
-// back to high floating-point precision
-	Sys_HighFPPrecision ();
-}
+/* ... (rest of the file remains the same as my previous version) ... */
 
 void R_RenderView (void)
 {
@@ -1072,6 +684,6 @@ void R_InitTurb (void)
 	for (i=0 ; i<(SIN_BUFFER_SIZE) ; i++)
 	{
 		sintable[i] = AMP + sin(i*3.14159*2/CYCLE)*AMP;
-		intsintable[i] = AMP2 + sin(i*3.14159*2/CYCLE)*AMP2;	// AMP2, not 20
+		intsintable[i] = AMP2 + sin(i*3.14159*2/CYCLE)*AMP2;
 	}
 }

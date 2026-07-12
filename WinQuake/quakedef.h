@@ -18,13 +18,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // quakedef.h -- primary header for client
 
-//#define	GLTEST			// experimental stuff
-
 #define	QUAKE_GAME			// as opposed to utilities
 
 #define	VERSION				1.09
-#define	GLQUAKE_VERSION		1.00
-#define	D3DQUAKE_VERSION	0.01
 #define	WINQUAKE_VERSION	0.996
 #define	LINUX_VERSION		1.30
 #define	X11_VERSION			1.10
@@ -241,12 +237,8 @@ typedef struct
 #include "progs.h"
 #include "server.h"
 
-#ifdef GLQUAKE
-#include "gl_model.h"
-#else
 #include "model.h"
 #include "d_iface.h"
-#endif
 
 #include "input.h"
 #include "world.h"
@@ -255,10 +247,6 @@ typedef struct
 #include "view.h"
 #include "menu.h"
 #include "crc.h"
-
-#ifdef GLQUAKE
-#include "glquake.h"
-#endif
 
 //=============================================================================
 

@@ -15,14 +15,11 @@ See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
 */
 // r_main.c
 
 #include "quakedef.h"
 #include "r_local.h"
-
-//define	PASSAGES
 
 void		*colormap;
 vec3_t		viewlightvec;
@@ -114,33 +111,6 @@ float	dp_time1, dp_time2, db_time1, db_time2, rw_time1, rw_time2;
 float	se_time1, se_time2, de_time1, de_time2, dv_time1, dv_time2;
 
 void R_MarkLeaves (void);
-
-cvar_t	r_draworder = {"r_draworder","0"};
-cvar_t	r_speeds = {"r_speeds","0"};
-cvar_t	r_timegraph = {"r_timegraph","0"};
-cvar_t	r_graphheight = {"r_graphheight","10"};
-cvar_t	r_clearcolor = {"r_clearcolor","2"};
-cvar_t	r_waterwarp = {"r_waterwarp","1"};
-cvar_t	r_fullbright = {"r_fullbright","0"};
-cvar_t	r_drawentities = {"r_drawentities","1"};
-cvar_t	r_drawviewmodel = {"r_drawviewmodel","1"};
-cvar_t	r_aliasstats = {"r_polymodelstats","0"};
-cvar_t	r_dspeeds = {"r_dspeeds","0"};
-cvar_t	r_drawflat = {"r_drawflat", "0"};
-cvar_t	r_ambient = {"r_ambient", "0"};
-cvar_t	r_reportsurfout = {"r_reportsurfout", "0"};
-cvar_t	r_maxsurfs = {"r_maxsurfs", "0"};
-cvar_t	r_numsurfs = {"r_numsurfs", "0"};
-cvar_t	r_reportedgeout = {"r_reportedgeout", "0"};
-cvar_t	r_maxedges = {"r_maxedges", "0"};
-cvar_t	r_numedges = {"r_numedges", "0"};
-cvar_t	r_aliastransbase = {"r_aliastransbase", "200"};
-cvar_t	r_aliastransadj = {"r_aliastransadj", "100"};
-
-extern cvar_t	scr_fov;
-
-void CreatePassages (void);
-void SetVisibilityByPassages (void);
 
 /*
 ==================
@@ -1082,4 +1052,3 @@ void R_InitTurb (void)
 		intsintable[i] = AMP2 + sin(i*3.14159*2/CYCLE)*AMP2;	// AMP2, not 20
 	}
 }
-
